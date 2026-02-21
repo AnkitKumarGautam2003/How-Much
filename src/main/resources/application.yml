@@ -14,6 +14,8 @@ spring:
     open-in-view: false
   jackson:
     default-property-inclusion: non_null
+  flyway:
+    enabled: true
 
 server:
   port: ${PORT:8080}
