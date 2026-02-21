@@ -5,6 +5,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.Table;
+import org.springframework.security.crypto.bcrypt.BCrypt;
 
 @Entity
 @Table(name = "users")
@@ -24,6 +25,17 @@ public class User extends BaseEntity {
     @Column(nullable = false, length = 20)
     private KycStatus kycStatus;
 
+    protected User() {
+        // JPA
+    }
+
+    public User(String email, String rawPassword, Role role, KycStatus kycStatus) {
+        this.email = email;
+        this.role = role;
+        this.kycStatus = kycStatus;
+        updatePassword(rawPassword);
+    }
+
     public String getEmail() {
         return email;
     }
@@ -36,8 +48,8 @@ public class User extends BaseEntity {
         return password;
     }
 
-    public void setPassword(String password) {
-        this.password = password;
+    public void updatePassword(String rawPassword) {
+        this.password = BCrypt.hashpw(rawPassword, BCrypt.gensalt());
     }
 
     public Role getRole() {

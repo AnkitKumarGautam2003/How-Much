@@ -13,7 +13,6 @@ import com.howmuch.security.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,16 +22,13 @@ import java.util.Map;
 public class AuthService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
 
     public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
                        AuthenticationManager authenticationManager,
                        JwtService jwtService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
     }
@@ -48,11 +44,12 @@ public class AuthService {
             throw new ApiException(HttpStatus.BAD_REQUEST, "Admin self-registration is not allowed");
         }
 
-        User user = new User();
-        user.setEmail(request.email().toLowerCase());
-        user.setPassword(passwordEncoder.encode(request.password()));
-        user.setRole(role);
-        user.setKycStatus(KycStatus.PENDING);
+        User user = new User(
+                request.email().toLowerCase(),
+                request.password(),
+                role,
+                KycStatus.PENDING
+        );
 
         User saved = userRepository.save(user);
         return new UserResponse(saved.getId(), saved.getEmail(), saved.getRole(), saved.getKycStatus());
