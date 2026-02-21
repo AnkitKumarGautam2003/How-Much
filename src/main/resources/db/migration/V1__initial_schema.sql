@@ -1,10 +1,10 @@
 CREATE TABLE users (
     id UUID PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     version BIGINT NOT NULL,
     email VARCHAR(255) NOT NULL,
-    password VARCHAR(60) NOT NULL,
+    password VARCHAR(255) NOT NULL,
     role VARCHAR(20) NOT NULL,
     kyc_status VARCHAR(20) NOT NULL,
     CONSTRAINT uk_users_email UNIQUE (email)
@@ -12,8 +12,8 @@ CREATE TABLE users (
 
 CREATE TABLE idempotency_records (
     id UUID PRIMARY KEY,
-    created_at TIMESTAMPTZ NOT NULL,
-    updated_at TIMESTAMPTZ NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+    updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
     version BIGINT NOT NULL,
     idempotency_key VARCHAR(128) NOT NULL,
     request_hash VARCHAR(128) NOT NULL,
