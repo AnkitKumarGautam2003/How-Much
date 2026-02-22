@@ -6,16 +6,15 @@ spring:
     driver-class-name: org.postgresql.Driver
   jpa:
     hibernate:
-      ddl-auto: validate
+        ddl-auto: update
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
     open-in-view: false
   jackson:
     default-property-inclusion: non_null
   flyway:
-    enabled: true
+    enabled: false
 
 server:
   port: ${PORT:8080}
