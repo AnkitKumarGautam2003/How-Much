@@ -1,14 +1,19 @@
 package com.howmuch.loan.service.impl;
 
+import com.howmuch.domain.Role;
 import com.howmuch.domain.User;
 import com.howmuch.loan.dto.CreateLoanRequest;
 import com.howmuch.loan.dto.LoanResponse;
 import com.howmuch.loan.entity.Loan;
+import com.howmuch.loan.entity.LoanStatus;
 import com.howmuch.loan.repository.LoanRepository;
 import com.howmuch.loan.service.LoanService;
 import com.howmuch.repository.UserRepository;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 public class LoanServiceImpl implements LoanService {
@@ -36,14 +41,40 @@ public class LoanServiceImpl implements LoanService {
 
         Loan saved = loanRepository.save(loan);
 
+        return mapToResponse(saved);
+    }
+    @Override
+    @Transactional(readOnly = true)
+    public List<LoanResponse> getLoansForUser(Authentication authentication) {
+        String email = authentication.getName();
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        List<Loan> loans;
+
+        if (user.getRole() == Role.BORROWER) {
+            loans = loanRepository.findByBorrowerId(user.getId());
+        } else if (user.getRole() == Role.LENDER) {
+            loans = loanRepository.findByStatus(LoanStatus.PENDING);
+        } else {
+            throw new RuntimeException("Unsupported role");
+        }
+
+        return loans.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    private LoanResponse mapToResponse(Loan loan) {
         return new LoanResponse(
-                saved.getId(),
-                saved.getBorrowerId(),
-                saved.getAmount(),
-                saved.getInterestRate(),
-                saved.getDurationMonths(),
-                saved.getStatus(),
-                saved.getCreatedAt()
+                loan.getId(),
+                loan.getBorrowerId(),
+                loan.getAmount(),
+                loan.getInterestRate(),
+                loan.getDurationMonths(),
+                loan.getStatus(),
+                loan.getCreatedAt()
         );
     }
+
 }
