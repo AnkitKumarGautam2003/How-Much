@@ -37,6 +37,12 @@ public class Loan {
     @Column(nullable = false, length = 20)
     private LoanStatus status;
 
+    @Column
+    private UUID lenderId;
+
+    @Column
+    private LocalDateTime fundedAt;
+
     @Column(nullable = false)
     private LocalDateTime createdAt;
 
@@ -86,7 +92,27 @@ public class Loan {
         return status;
     }
 
+    public UUID getLenderId() {
+        return lenderId;
+    }
+
+    public LocalDateTime getFundedAt() {
+        return fundedAt;
+    }
+
     public LocalDateTime getCreatedAt() {
         return createdAt;
+    }
+
+    public void setStatus(LoanStatus status) {
+        this.status = status;
+    }
+
+    public void setLenderId(UUID lenderId) {
+        this.lenderId = lenderId;
+    }
+
+    public void setFundedAt(LocalDateTime fundedAt) {
+        this.fundedAt = fundedAt;
     }
 }
