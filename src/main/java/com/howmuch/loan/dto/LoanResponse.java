@@ -14,6 +14,8 @@ public class LoanResponse {
     private final BigDecimal interestRate;
     private final Integer durationMonths;
     private final LoanStatus status;
+    private final UUID lenderId;
+    private final LocalDateTime fundedAt;
     private final LocalDateTime createdAt;
 
     public LoanResponse(
@@ -23,6 +25,8 @@ public class LoanResponse {
             BigDecimal interestRate,
             Integer durationMonths,
             LoanStatus status,
+            UUID lenderId,
+            LocalDateTime fundedAt,
             LocalDateTime createdAt
     ) {
         this.id = id;
@@ -31,6 +35,8 @@ public class LoanResponse {
         this.interestRate = interestRate;
         this.durationMonths = durationMonths;
         this.status = status;
+        this.lenderId = lenderId;
+        this.fundedAt = fundedAt;
         this.createdAt = createdAt;
     }
 
@@ -56,6 +62,14 @@ public class LoanResponse {
 
     public LoanStatus getStatus() {
         return status;
+    }
+
+    public UUID getLenderId() {
+        return lenderId;
+    }
+
+    public LocalDateTime getFundedAt() {
+        return fundedAt;
     }
 
     public LocalDateTime getCreatedAt() {

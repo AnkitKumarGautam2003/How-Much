@@ -13,7 +13,9 @@ import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class LoanServiceImpl implements LoanService {
@@ -65,6 +67,39 @@ public class LoanServiceImpl implements LoanService {
                 .toList();
     }
 
+
+    @Override
+    @Transactional
+    public LoanResponse fundLoan(UUID loanId, Authentication authentication) {
+        String email = authentication.getName();
+
+        User lender = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        if (lender.getRole() != Role.LENDER) {
+            throw new RuntimeException("Only lenders can fund loans");
+        }
+
+        Loan loan = loanRepository.findById(loanId)
+                .orElseThrow(() -> new RuntimeException("Loan not found"));
+
+        if (loan.getStatus() != LoanStatus.PENDING) {
+            throw new RuntimeException("Loan is not available for funding");
+        }
+
+        if (loan.getBorrowerId().equals(lender.getId())) {
+            throw new RuntimeException("Cannot fund your own loan");
+        }
+
+        loan.setStatus(LoanStatus.FUNDED);
+        loan.setLenderId(lender.getId());
+        loan.setFundedAt(LocalDateTime.now());
+
+        Loan saved = loanRepository.save(loan);
+
+        return mapToResponse(saved);
+    }
+
     private LoanResponse mapToResponse(Loan loan) {
         return new LoanResponse(
                 loan.getId(),
@@ -73,6 +108,8 @@ public class LoanServiceImpl implements LoanService {
                 loan.getInterestRate(),
                 loan.getDurationMonths(),
                 loan.getStatus(),
+                loan.getLenderId(),
+                loan.getFundedAt(),
                 loan.getCreatedAt()
         );
     }
