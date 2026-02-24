@@ -10,6 +10,8 @@ import com.howmuch.dto.UserResponse;
 import com.howmuch.exception.ApiException;
 import com.howmuch.repository.UserRepository;
 import com.howmuch.security.JwtService;
+import com.howmuch.wallet.Wallet;
+import com.howmuch.wallet.WalletRepository;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -24,13 +26,16 @@ public class AuthService {
     private final UserRepository userRepository;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final WalletRepository walletRepository;
 
     public AuthService(UserRepository userRepository,
                        AuthenticationManager authenticationManager,
-                       JwtService jwtService) {
+                       JwtService jwtService,
+                       WalletRepository walletRepository) {
         this.userRepository = userRepository;
         this.authenticationManager = authenticationManager;
         this.jwtService = jwtService;
+        this.walletRepository = walletRepository;
     }
 
     @Transactional
@@ -52,6 +57,11 @@ public class AuthService {
         );
 
         User saved = userRepository.save(user);
+
+        Wallet wallet = new Wallet();
+        wallet.setUser(saved);
+        walletRepository.save(wallet);
+
         return new UserResponse(saved.getId(), saved.getEmail(), saved.getRole(), saved.getKycStatus());
     }
 
